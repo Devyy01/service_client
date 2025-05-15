@@ -34,27 +34,31 @@
 
             <div>
                 <label class="block text-gray-700">Nom</label>
-                <input type="text" name="nom" placeholder="Entrez votre nom" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('nom') }}">
+                <input type="text" name="firstName" placeholder="Entrez votre nom" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('nom') }}">
             </div>
 
             <div>
                 <label class="block text-gray-700">Prénom</label>
-                <input type="text" name="prenom" placeholder="Entrez votre prénom" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('prenom') }}">
+                <input type="text" name="lastName" placeholder="Entrez votre prénom" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('prenom') }}">
             </div>
 
             <div>
                 <label class="block text-gray-700">Couleur des yeux</label>
-                <input type="text" name="yeux" placeholder="Ex: Marron, Bleu" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('yeux') }}">
+                <input type="text" name="eyes" placeholder="Ex: Marron, Bleu" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('yeux') }}">
             </div>
 
             <div>
                 <label class="block text-gray-700">Couleur de peau</label>
-                <input type="text" name="peau" placeholder="Ex: Claire, Foncée" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('peau') }}">
+                <input type="text" name="skin" placeholder="Ex: Claire, Foncée" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('peau') }}">
+            </div>
+            <div>
+                <label class="block text-gray-700">Couleur de cheveux</label>
+                <input type="text" name="hair" placeholder="Ex: Claire, Foncée" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('peau') }}">
             </div>
 
             <div>
                 <label class="block text-gray-700">Ville</label>
-                <input type="text" name="ville" placeholder="Entrez votre ville" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('ville') }}">
+                <input type="text" name="address" placeholder="Entrez votre ville" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="{{ old('ville') }}">
             </div>
 
             <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
