@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Services\ApiChatgpt;
@@ -7,13 +8,13 @@ use Illuminate\Http\Request;
 class PersonalInfoController extends Controller
 {
 
-      public $serviceOpenAI;
-   
-   
+    public $serviceOpenAI;
+
+
     public function __construct(ApiChatgpt $serviceOpenAI)
     {
         $this->serviceOpenAI = $serviceOpenAI;
-    } 
+    }
 
     public function showForm()
     {
@@ -27,42 +28,42 @@ class PersonalInfoController extends Controller
         $validated = $request->validate([
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
-            'eyes' => 'required|string|max:255',
-            'skin' => 'required|string|max:255',
-            'hair' => 'required|string|max:255',
             'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'postal_code' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'characteristic' => 'required|string|max:255',
         ]);
-        
+
         // dd($validated); // Affiche les données validées
-        $prompt = $this->generatePrompt($validated['firstName'],$validated['lastName'], $validated['eyes'],$validated['skin'],$validated['hair'],$validated['address']);
+        $prompt = $this->generatePrompt($validated['firstName'], $validated['lastName'], $validated['address'], $validated['city'], $validated['postal_code'], $validated['country'], $validated['characteristic']);
         // dd($prompt);
-        $valer=$this->serviceOpenAI->generateCanva($prompt);
+        $valer = $this->serviceOpenAI->generateCanva($prompt);
         // dd($valer);
         preg_match_all('/([A-Za-zéèàùçêîôâëïü -]+)\s*:\s*(\d+(?:[.,]\d+)?)\s*%/', $valer, $matches, PREG_SET_ORDER);
-        
+
         $countries = json_decode(file_get_contents(resource_path('json/countries.json')), true);
-           
+
         $result = [];
         $countrise_code = [];
-    //   dd($matches);
+        //   dd($valer);
         foreach ($matches as $match) {
             $country = trim($match[1]);
             $percent = $match[2];
             $country_client = collect($countries)->firstWhere('label', $country);
             if ($country_client) {
-                $country_code=$country_client['code'];
+                $country_code = $country_client['code'];
                 $result[$country_code] =  $percent;
                 $countrise_code[$country_code] = $country;
             }
         }
         // dd($result,$countrise_code);
         if ($result && $countrise_code) {
-            $this->generateMap($result,$countrise_code);
+            $this->generateMap($result, $countrise_code);
         }
-
     }
 
-    private function generatePrompt($firstName,$lastName, $eyes,$skin,$hair,$address)
+    private function generatePrompt($firstName, $lastName, $address, $city, $postal_code, $country, $characteristic)
     {
         $prompt = "You are an expert in demographic and onomastic analysis. Here are the instructions:\n\n";
         $prompt .= "You must estimate the most likely geographical origin of a person based on their first name, last name, address, and physical description.\n\n";
@@ -72,16 +73,16 @@ class PersonalInfoController extends Controller
         $prompt .= "3. The total percentage must add up to exactly 100%.\n";
         $prompt .= "4. The response must be in this format:\nFrance: xx.x%\nMorocco: xx.x%\n...\n\n";
         $prompt .= "Here is the information to analyze:\n\n";
-        $prompt .= "First name: $firstName\nLast name: $lastName\nAddress: $address\nPhysical description: $skin, $hair, $eyes\n\n";
+        $prompt .= "First name: $firstName\nLast name: $lastName\nAddress: $address, $city $postal_code, $country\nPhysical description: $characteristic\n\n";
         $prompt .= "Please assign percentages by country and follow all the rules stated above.";
 
 
         return $prompt;
     }
 
-     public function generateMap($data,$data_code)
+    public function generateMap($data, $data_code)
     {
-        
+
         $defaultColor = '#1CAB94';
 
         $svgPath = public_path('maps/world.svg');
@@ -114,7 +115,7 @@ class PersonalInfoController extends Controller
             }
         }, $svgContent);
 
-        
+
         foreach ($data as $countryCode => $percentage) {
             $color = $this->getColorFromPercentage($percentage);
 
@@ -240,9 +241,9 @@ class PersonalInfoController extends Controller
         } else {
             $q = $l < 0.5 ? $l * (1 + $s) : $l + $s - $l * $s;
             $p = 2 * $l - $q;
-            $r = $this->hueToRgb($p, $q, $h + 1/3);
+            $r = $this->hueToRgb($p, $q, $h + 1 / 3);
             $g = $this->hueToRgb($p, $q, $h);
-            $b = $this->hueToRgb($p, $q, $h - 1/3);
+            $b = $this->hueToRgb($p, $q, $h - 1 / 3);
         }
 
         $r = intval($r * 255);
@@ -256,9 +257,9 @@ class PersonalInfoController extends Controller
     {
         if ($t < 0) $t += 1;
         if ($t > 1) $t -= 1;
-        if ($t < 1/6) return $p + ($q - $p) * 6 * $t;
-        if ($t < 1/2) return $q;
-        if ($t < 2/3) return $p + ($q - $p) * (2/3 - $t) * 6;
+        if ($t < 1 / 6) return $p + ($q - $p) * 6 * $t;
+        if ($t < 1 / 2) return $q;
+        if ($t < 2 / 3) return $p + ($q - $p) * (2 / 3 - $t) * 6;
         return $p;
     }
 }

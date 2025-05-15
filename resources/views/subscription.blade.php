@@ -10,7 +10,7 @@
 
     <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
         <h1 class="text-2xl font-bold mb-6 text-center">Informations Personnelles</h1>
-        
+
         <!-- Affichage des erreurs de validation -->
         @if($errors->any())
             <div class="bg-red-100 text-red-700 p-4 rounded-md mb-4">

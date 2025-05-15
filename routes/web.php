@@ -1,13 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\CountryController;
 use App\Http\Controllers\PersonalInfoController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 
-Route::get('/', function () {
-    return view('welcome');
+
+Route::get('/countries', function () {
+    $path = resource_path('files/countries.json');
+    $countries = File::get($path);
+    return Response::make($countries, 200, ['Content-Type' => 'application/json']);
 });
-Route::get('/subscription', [PersonalInfoController::class, 'showForm'])->name('subscription.form');
+
+Route::get('/', [CountryController::class, 'showCountryForm'])->name('countries');
+// Route::get('/subscription', [PersonalInfoController::class, 'showForm'])->name('subscription.form');
 Route::post('/subscription', [PersonalInfoController::class, 'submitForm']);
-Route::get('/login', [LoginController::class, 'showlogin'])->name('login');
-Route::post('/login', [LoginController::class, 'LoginForm']);
