@@ -74,7 +74,7 @@ class ApiChatgpt
 
     public function generateCanva(string $prompt): ?string
     {
-        $apiKey = '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';
+        $apiKey = env('OPENAI_API_KEY');
 
         if (empty($apiKey)) {
             Log::error('OPENAI_API_KEY is not set in the environment.');
