@@ -47,7 +47,7 @@
     { "label": "Îles Cook", "code": "CK", "image": "CK", "dial_code": "+682", "phone_length": 5, "currency": "NZD", "locale": "en_CK" },
     { "label": "Chili", "code": "CL", "image": "CL", "dial_code": "+56", "phone_length": 9, "currency": "CLP", "locale": "es_CL" },
     { "label": "Cameroun", "code": "CM", "image": "CM", "dial_code": "+237", "phone_length": 9, "currency": "XAF", "locale": "fr_CM" },
-    { "label": "Chine", "code": "CN", "image": "CN", "dial_code": "+86", "phone_length": 11, "currency": "CNY", "locale": "zh_CN" },
+    { "label": "Chine", "code": "CN", "image": "CN", "dial_code": "+86", "phone_length": 11, "currency": "CNY", "locale": "zh_CN" },  
     { "label": "Colombie", "code": "CO", "image": "CO", "dial_code": "+57", "phone_length": 10, "currency": "COP", "locale": "es_CO" },
     { "label": "Costa Rica", "code": "CR", "image": "CR", "dial_code": "+506", "phone_length": 8, "currency": "CRC", "locale": "es_CR" },
     { "label": "Cuba", "code": "CU", "image": "CU", "dial_code": "+53", "phone_length": 8, "currency": "CUP", "locale": "es_CU" },
@@ -233,6 +233,7 @@
     { "label": "Ouganda", "code": "UG", "image": "UG", "dial_code": "+256", "phone_length": 9, "currency": "UGX", "locale": "en_UG" },
     { "label": "Îles mineures éloignées des États-Unis", "code": "UM", "image": "UM", "dial_code": "+1", "phone_length": 10, "currency": "USD", "locale": "en_UM" },
     { "label": "Uruguay", "code": "UY", "image": "UY", "dial_code": "+598", "phone_length": 8, "currency": "UYU", "locale": "es_UY" },
+    
     { "label": "Ouzbékistan", "code": "UZ", "image": "UZ", "dial_code": "+998", "phone_length": 9, "currency": "UZS", "locale": "uz_UZ" },
     { "label": "État de la Cité du Vatican", "code": "VA", "image": "VA", "dial_code": "+39", "phone_length": 9, "currency": "EUR", "locale": "la_VA" },
     { "label": "Saint-Vincent-et-les Grenadines", "code": "VC", "image": "VC", "dial_code": "+1-784", "phone_length": 7, "currency": "XCD", "locale": "en_VC" },
@@ -250,11 +251,12 @@
     { "label": "Zambie", "code": "ZM", "image": "ZM", "dial_code": "+260", "phone_length": 9, "currency": "ZMW", "locale": "en_ZM" },
     { "label": "Zimbabwe", "code": "ZW", "image": "ZW", "dial_code": "+263", "phone_length": 9, "currency": "ZWL", "locale": "en_ZW" }
 ]
-
-
-
-
-
-
-
-
+    
+    
+    
+ 
+    
+    
+    
+    
+    

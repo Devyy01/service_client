@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\PersonalInfoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
@@ -13,3 +14,5 @@ Route::get('/countries', function () {
 });
 
 Route::get('/', [CountryController::class, 'showCountryForm'])->name('countries');
+// Route::get('/subscription', [PersonalInfoController::class, 'showForm'])->name('subscription.form');
+Route::post('/subscription', [PersonalInfoController::class, 'submitForm']);

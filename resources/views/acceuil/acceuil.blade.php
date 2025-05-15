@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
         @theme {
@@ -71,7 +73,7 @@
                             class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary">
                             <option value="" disabled>Choisissez un pays</option>
                             @foreach ($countries as $country)
-                                <option value="{{ $country['code'] }}">
+                                <option value="{{ $country['label'] }}">
                                     {{ $country['label'] }}
                                 </option>
                             @endforeach
@@ -97,7 +99,7 @@
     </main>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         $(document).ready(function() {
             function adjustMainPadding() {
@@ -109,8 +111,8 @@
             $(window).resize(adjustMainPadding);
 
             const infos = {
-                firstname: null,
-                lastname: null,
+                firstName: null,
+                lastName: null,
                 address: null,
                 city: null,
                 postal_code: null,
@@ -119,11 +121,11 @@
             };
 
             $('#firstname').on('input', function() {
-                infos.firstname = $(this).val();
+                infos.firstName = $(this).val();
             });
 
             $('#lastname').on('input', function() {
-                infos.lastname = $(this).val();
+                infos.lastName = $(this).val();
             });
 
             $('#address').on('input', function() {
@@ -157,32 +159,38 @@
                     .addClass('cursor-not-allowed bg-primary/60 text-white')
                     .removeClass('cursor-pointer text-primary hover:bg-primary hover:text-white');
 
-                console.log('Données du formulaire :', infos);
 
-                // $.ajax({
-                //     // url: '/generate-pdf',
-                //     method: 'POST',
-                //     data: infos,
-                //     xhrFields: {
-                //         responseType: 'blob'
-                //     },
-                //     headers: {
-                //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                //     },
-                //     success: function(blob) {
-                //         const link = document.createElement('a');
-                //         link.href = window.URL.createObjectURL(blob);
-                //         link.download = 'formulaire.pdf';
-                //         link.click();
-                //     },
-                //     error: function() {
-                //         alert('Erreur lors de la génération du PDF.');
-                //     },
-                //     complete: function() {
-                //         $spinner.addClass('hidden');
-                //         $btn.prop('disabled', false);
-                //     }
-                // });
+                $.ajax({
+                    url: '/subscription',
+                    method: 'POST',
+                    data: infos,
+                    // xhrFields: {
+                    //     responseType: 'blob'
+                    // },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(blob) {
+                        // const link = document.createElement('a');
+                        // link.href = window.URL.createObjectURL(blob);
+                        // link.download = 'formulaire.pdf';
+                        // link.click();
+                        console.log('Données du formulaire :', infos);
+                    },
+                    error: function() {
+                        toastr.error('Une erreur est survenue. Veuillez réessayer.', 'Erreur');
+                    },
+                    complete: function() {
+                        toastr.success('Génération votre rapport éthnique a été succée.', 'Success');
+                        $spinner.addClass('hidden');
+                        $btn
+                            .prop('disabled', false)
+                            .removeClass('cursor-not-allowed bg-primary/60 text-white')
+                            .addClass(
+                                'cursor-pointer text-primary hover:bg-primary hover:text-white'
+                            );
+                    }
+                });
             });
         });
     </script>
