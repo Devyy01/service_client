@@ -40,20 +40,27 @@ class PersonalInfoController extends Controller
         $prompt = $this->generatePrompt($validated['firstName'], $validated['lastName'], $validated['address'], $validated['city'], $validated['postal_code'], $validated['country'], $validated['characteristic']);
         // dd($prompt);
         $valer = $this->serviceOpenAI->generateCanva($prompt);
-        dd($valer);
+        // dd($valer);
         preg_match_all('/([A-Za-zéèàùçêîôâëïü -]+)\s*:\s*(\d+(?:[.,]\d+)?)\s*%/', $valer, $matches, PREG_SET_ORDER);
 
         $countries = json_decode(file_get_contents(resource_path('json/countries.json')), true);
 
         $result = [];
         $countrise_code = [];
-        //   dd($valer);
+        //   dd($matches);
         foreach ($matches as $match) {
+            // $country = trim($match[1]);
+            // $percent = $match[2];
+            // $country_client = collect($countries)->firstWhere('label', $country);
+            // if ($country_client) {
+            //     $country_code = $country_client['code'];
+            //     $result[$country_code] =  $percent;
+            //     $countrise_code[$country_code] = $country;
+            // }
             $country = trim($match[1]);
             $percent = $match[2];
-            $country_client = collect($countries)->firstWhere('label', $country);
-            if ($country_client) {
-                $country_code = $country_client['code'];
+            $country_code=$this->getCountryCode($country);
+            if ($country_code) {
                 $result[$country_code] =  $percent;
                 $countrise_code[$country_code] = $country;
             }
@@ -62,6 +69,7 @@ class PersonalInfoController extends Controller
         if ($result && $countrise_code) {
             $this->generateMap($result, $countrise_code);
         }
+        $this->generatePdf($validated['firstName'], $validated['lastName']);
     }
 
     private function generatePrompt($firstName, $lastName, $address, $city, $postal_code, $country, $characteristic)
@@ -264,18 +272,22 @@ class PersonalInfoController extends Controller
         return $p;
     }
 
-     public function generatePdf(){
+     public function generatePdf($firstName,$lastName){
        
-          // Lire le fichier SVG
+          
     $svgPath = public_path('maps/generated_world.svg');
     $svgContent = file_get_contents($svgPath);
     $svgBase64 = 'data:image/svg+xml;base64,' . base64_encode($svgContent);
-    // dd($svgBase64);
-    // Charger la vue blade avec la variable $svgBase64
-    $pdf = PDF::loadView('ethniquepdf', compact('svgBase64'));
+    $fullName = $firstName . ' ' . $lastName;
+    $nampdf = $firstName . '_' . $lastName;
+    // $pdf = PDF::loadView('ethniquepdf', compact('svgBase64'));
+    $pdf = PDF::loadView('ethniquepdf', [
+        'svgBase64' => $svgBase64,
+        'name' => $fullName,
+    ]);
 
     // Nom du fichier à sauvegarder
-    $fileName = 'ancestry_test_results_' . date('Y_m_d_H_i_s') . '.pdf';
+    $fileName = $nampdf . date('Y_m_d_H_i_s') . '.pdf';
 
     // Chemin pour enregistrer dans storage/app/public/pdfs/
     $filePath = storage_path('app/public/pdfs/' . $fileName);

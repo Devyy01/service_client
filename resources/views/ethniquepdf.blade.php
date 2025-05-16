@@ -102,7 +102,7 @@
       <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 210px; height: auto;">
     </div>
     <h1>ANCESTRY TEST RESULTS</h1>
-    <p style="font-size: 20pt; text-decoration: underline;">Placer le nom ici</p>
+    <p style="font-size: 20pt; text-decoration: underline;">{{$name}}</p>
     <div class="footer absolute">
       <p>&copy; {{ date('Y') }} DNA Result.</p>
     </div>
