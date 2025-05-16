@@ -180,8 +180,12 @@
                             .addClass(
                                 'cursor-pointer text-primary hover:bg-primary hover:text-white'
                             );
-                        console.log('Données du formulaire :', infos);
-                        window.location.href = '/generatePdf';
+
+                        $('#firstname, #lastname, #address, #city, #postal_code, #country, #characteristic')
+                            .val('');
+                        Object.keys(infos).forEach(key => infos[key] = null);
+                        // window.location.href = '/generatePdf';
+                        window.open('/generatePdf', '_blank');
                     },
                     error: function() {
                         toastr.error('Une erreur est survenue. Veuillez réessayer.', 'Erreur');

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>DNA test Result</title>
+  <title>{{$name}} Results</title>
   <style>
     html, body {
       margin: 0;
@@ -36,8 +36,8 @@
       margin-top: 10px;
       margin-left: 16px;
       position: absolute;
-      top: 1px; 
-      left: 10px; 
+      top: 1px;
+      left: 10px;
     }
 
     p {
@@ -63,13 +63,12 @@
     .section.head {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       text-align: center;
     }
     .logo{
       margin-top: 70px;
-      margin-bottom: 20px;  
+      margin-bottom: 20px;
     }
 
     .footer {
@@ -99,10 +98,10 @@
   <!-- PAGE 1 -->
   <div class="section head">
     <div class="logo">
-      <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 210px; height: auto;">
+      <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 230px; height: auto;">
     </div>
-    <h1>ANCESTRY TEST RESULTS</h1>
-    <p style="font-size: 20pt; text-decoration: underline;">{{$name}}</p>
+    <h1 style="margin-top: 50px">ANCESTRY TEST RESULTS</h1>
+    <p style="font-size: 2.75rem; text-decoration: underline; margin-top: 50px">{{$name}}</p>
     <div class="footer absolute">
       <p>&copy; {{ date('Y') }} DNA Result.</p>
     </div>
@@ -120,5 +119,3 @@
   </div>
 </body>
 </html>
-     
-    
