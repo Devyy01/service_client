@@ -171,17 +171,8 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(blob) {
-                        // const link = document.createElement('a');
-                        // link.href = window.URL.createObjectURL(blob);
-                        // link.download = 'formulaire.pdf';
-                        // link.click();
-                        console.log('Données du formulaire :', infos);
-                    },
-                    error: function() {
-                        toastr.error('Une erreur est survenue. Veuillez réessayer.', 'Erreur');
-                    },
-                    complete: function() {
-                        toastr.success('Génération votre rapport éthnique a été succée.', 'Success');
+                        toastr.success('Génération votre rapport éthnique a été succée.',
+                            'Success');
                         $spinner.addClass('hidden');
                         $btn
                             .prop('disabled', false)
@@ -189,7 +180,12 @@
                             .addClass(
                                 'cursor-pointer text-primary hover:bg-primary hover:text-white'
                             );
-                    }
+                        console.log('Données du formulaire :', infos);
+                        window.location.href = '/generatePdf';
+                    },
+                    error: function() {
+                        toastr.error('Une erreur est survenue. Veuillez réessayer.', 'Erreur');
+                    },
                 });
             });
         });
