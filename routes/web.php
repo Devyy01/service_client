@@ -14,5 +14,5 @@ Route::get('/countries', function () {
 });
 
 Route::get('/', [CountryController::class, 'showCountryForm'])->name('countries');
-// Route::get('/subscription', [PersonalInfoController::class, 'showForm'])->name('subscription.form');
+Route::get('/generatePdf', [PersonalInfoController::class, 'generatePdf']);
 Route::post('/subscription', [PersonalInfoController::class, 'submitForm']);

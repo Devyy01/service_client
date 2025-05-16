@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
-<svg version="1.1" height="700pt" width="700pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg version="1.1" height="350pt" width="550pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin-top:60px">
 <desc>
 Map version: 2.3.0
 Copyright (c) 2024 Highsoft AS, Based on data from Natural Earth
@@ -9,7 +9,7 @@ Copyright (c) 2024 Highsoft AS, Based on data from Natural Earth
 <title>World, Miller projection, high resolution</title>
 <g id="admin0">
 
-<path fill="#CEE3F5" stroke="#6E6E6E" stroke-width="0.4" id="FO" d="M325.5,80.0 L324.9,81.9 L324.6,80.1 L323.4,80.1 L324.3,79.5 Z">
+<path fill="#1cab94" stroke="#6E6E6E" stroke-width="0.4" id="FO" d="M325.5,80.0 L324.9,81.9 L324.6,80.1 L323.4,80.1 L324.3,79.5 Z">
   <desc xmlns="http://www.highcharts.com/svg/namespace">
     <name>Faroe Islands</name>
     <labelrank>6</labelrank>
@@ -3843,7 +3843,5 @@ Copyright (c) 2024 Highsoft AS, Based on data from Natural Earth
   </desc>
 </path>
 </g>
-
-<text x="350" y="714" text-anchor="middle" font-family="Verdana" font-size="8" stroke-opacity="0.6">Copyright (c) 2024 Highsoft AS, Based on data from Natural Earth</text>
 
 </svg>
