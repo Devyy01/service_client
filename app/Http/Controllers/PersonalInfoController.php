@@ -69,7 +69,12 @@ class PersonalInfoController extends Controller
         if ($result && $countrise_code) {
             $this->generateMap($result, $countrise_code);
         }
-        $this->generatePdf($validated['firstName'], $validated['lastName']);
+        
+        // $this->generatePdf($validated['firstName'], $validated['lastName']);
+        session([
+            'firstName' => $validated['firstName'],
+            'lastName' => $validated['lastName'],
+        ]);
     }
 
     private function generatePrompt($firstName, $lastName, $address, $city, $postal_code, $country, $characteristic)
@@ -272,9 +277,10 @@ class PersonalInfoController extends Controller
         return $p;
     }
 
-     public function generatePdf($firstName,$lastName){
+     public function generatePdf(){
        
-          
+        $firstName = session('firstName');
+        $lastName = session('lastName');
     $svgPath = public_path('maps/generated_world.svg');
     $svgContent = file_get_contents($svgPath);
     $svgBase64 = 'data:image/svg+xml;base64,' . base64_encode($svgContent);
