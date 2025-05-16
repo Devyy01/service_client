@@ -82,7 +82,7 @@
                     <div class="sm:col-span-2">
                         <label for="characteristic"
                             class="block text-sm sm:text-base text-gray-900">Caractéristique</label>
-                        <textarea name="characteristic" id="characteristic" placeholder="Décrivez vos caractéristiques" rows="4"
+                        <textarea name="characteristic" id="characteristic" placeholder="Décrivez vos caractéristiques (ex. : Peau : noire, Yeux : noirs)" rows="4"
                             class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary"></textarea>
                     </div>
                 </div>
