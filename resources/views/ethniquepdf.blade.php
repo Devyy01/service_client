@@ -12,16 +12,16 @@
 
     @page {
       margin: 0;
-      background-image: url('public/gradient.png');
-      background-size: cover;
+      size: A4 landscape;
+      background-image: url("{{ public_path('gradient.png') }}");
       background-repeat: no-repeat;
-      background-position: center;
+      background-size: cover;
     }
 
     body {
       font-family: DejaVu Sans, sans-serif;
-      background: url('public/gradient.png');
-      margin: 1in; /* Marges internes pour ne pas toucher les bords */
+      background: url("{{ public_path('gradient.png') }}");
+      background-size: cover;
     }
 
     h1 {
@@ -31,9 +31,10 @@
     }
 
     h2 {
-      font-size: 22pt;
+      font-size: 30pt;
       color: #1caa93;
-      margin-top: 30px;
+      margin-top: 10px;
+      margin-left: 16px;
       position: absolute;
       top: 1px; 
       left: 10px; 
@@ -66,6 +67,10 @@
       align-items: center;
       text-align: center;
     }
+    .logo{
+      margin-top: 70px;
+      margin-bottom: 20px;  
+    }
 
     .footer {
       text-align: right;
@@ -75,12 +80,17 @@
 
     .footer.absolute {
       position: absolute;
-      right: 30px;
-      bottom: 30px;
+      right: 50px;
+      bottom: 70px;
     }
 
     .footer p {
       margin: 0;
+    }
+    .litlelogo {
+      position: absolute;
+      top: 15px;
+      right : 20px;;
     }
   </style>
 </head>
@@ -88,18 +98,27 @@
 
   <!-- PAGE 1 -->
   <div class="section head">
+    <div class="logo">
+      <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 210px; height: auto;">
+    </div>
     <h1>ANCESTRY TEST RESULTS</h1>
-    <p style="font-size: 20pt; text-decoration: underline;">louise Montézin</p>
+    <p style="font-size: 20pt; text-decoration: underline;">Placer le nom ici</p>
     <div class="footer absolute">
-      <p>&copy;  DNA Result.</p>
+      <p>&copy; {{ date('Y') }} DNA Result.</p>
     </div>
   </div>
 
   <!-- PAGE 2 -->
   <div class="section">
-    <h2>ETHNICITY TEST RESULTS</h2>
-     <img src="{{ $svgBase64 }}" alt="Background SVG" style="width: 100%; height: auto; position: absolute; top: 90; left: 0; z-index: 1; opacity: 0.3;">
+    <div class="litlelogo">
+      <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 120px;">
+    </div>
+    <h2 style="margin-top:25px">ETHNICITY TEST RESULTS</h2>
+    <div style="margin-top:280px">
+        <img src="{{ $svgBase64 }}" alt="Background SVG" style="width: 75%; margin-left:13%">
+    </div>
   </div>
-
 </body>
 </html>
+     
+    
