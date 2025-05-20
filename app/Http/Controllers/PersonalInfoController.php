@@ -19,13 +19,12 @@ class PersonalInfoController extends Controller
 
     public function showForm()
     {
-        return view('subscription'); // Charger la vue contenant ton formulaire
+        return view('subscription');
     }
 
     public function submitForm(Request $request)
     {
 
-        // Valider les données
         $validated = $request->validate([
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
@@ -36,27 +35,17 @@ class PersonalInfoController extends Controller
             'characteristic' => 'required|string|max:255',
         ]);
 
-        // dd($validated); // Affiche les données validées
         $prompt = $this->generatePrompt($validated['firstName'], $validated['lastName'], $validated['address'], $validated['city'], $validated['postal_code'], $validated['country'], $validated['characteristic']);
-        // dd($prompt);
         $valer = $this->serviceOpenAI->generateCanva($prompt);
-        // dd($valer);
         preg_match_all('/([A-Za-zéèàùçêîôâëïü -]+)\s*:\s*(\d+(?:[.,]\d+)?)\s*%/', $valer, $matches, PREG_SET_ORDER);
 
         $countries = json_decode(file_get_contents(resource_path('json/countries.json')), true);
 
         $result = [];
         $countrise_code = [];
-        //   dd($matches);
+
         foreach ($matches as $match) {
-            // $country = trim($match[1]);
-            // $percent = $match[2];
-            // $country_client = collect($countries)->firstWhere('label', $country);
-            // if ($country_client) {
-            //     $country_code = $country_client['code'];
-            //     $result[$country_code] =  $percent;
-            //     $countrise_code[$country_code] = $country;
-            // }
+            
             $country = trim($match[1]);
             $percent = $match[2];
             $country_code=$this->getCountryCode($country);
@@ -65,7 +54,7 @@ class PersonalInfoController extends Controller
                 $countrise_code[$country_code] = $country;
             }
         }
-        // dd($result,$countrise_code);
+        
         if ($result && $countrise_code) {
             $this->generateMap($result, $countrise_code);
         }
@@ -157,17 +146,17 @@ class PersonalInfoController extends Controller
             }, $svgContent);
         }
 
-        $legendX = 30;  // Position X de la légende
-        $legendY = 250; // Position Y de départ
-        $legendSpacing = 25; // Espace entre lignes
-        $rectSize = 15; // Taille des carrés colorés
+        $legendX = 30;
+        $legendY = 250;
+        $legendSpacing = 25;
+        $rectSize = 15; 
 
         $legendElements = '<g id="legend">';
 
         $legendElements .= sprintf(
             '<text x="%d" y="%d" font-size="14" fill="#000" font-weight="bold">Countries</text>',
             $legendX,
-            $legendY - 20 // Positionner au-dessus de la légende
+            $legendY - 20 
         );
 
         foreach ($data as $countryCode => $percentage) {
@@ -183,7 +172,6 @@ class PersonalInfoController extends Controller
                 $color
             );
 
-            // Texte à droite du carré
             $legendElements .= sprintf(
                 '<text x="%d" y="%d" font-size="12" fill="#000">%s (%s%%)</text>',
                 $legendX + $rectSize + 10,
@@ -197,28 +185,16 @@ class PersonalInfoController extends Controller
 
         $legendElements .= '</g>';
 
-        // Ajouter la légende à la fin du SVG (avant </svg>)
         $svgContent = preg_replace('/<\/svg>/', $legendElements . '</svg>', $svgContent);
 
-        // Sauvegarder le SVG modifié
         $outputPath = public_path('maps/generated_world.svg');
         file_put_contents($outputPath, $svgContent);
 
-        // Retourner l'URL du fichier généré
         $url = asset('maps/generated_world.svg');
 
         return response()->json(['map_url' => $url]);
     }
 
-    // private function getColorFromPercentage($percentage)
-    // {
-    //     // Du vert (0%) vers rouge (100%)
-    //     $red   = min(255, intval($percentage * 2.55));
-    //     $green = min(255, 255 - intval($percentage * 2.55));
-    //     $blue  = 0;
-
-    //     return sprintf("#%02X%02X%02X", $red, $green, $blue);
-    // }
 
     private function getCountryName($countryCode)
     {
@@ -227,17 +203,16 @@ class PersonalInfoController extends Controller
             'DZ' => 'Algérie',
             'IT' => 'Italie',
             'CA' => 'Canada',
-            // Tu peux en ajouter d'autres ici
         ];
 
         return $countries[$countryCode] ?? $countryCode;
     }
     private function getColorFromPercentage($percentage)
     {
-        // Hue de 120° (vert) à 0° (rouge)
-        $hue = 120 - ($percentage * 1.2);  // 100% → 0° rouge | 0% → 120° vert
-        $saturation = 100; // 100% saturation
-        $lightness = 50;   // 50% lumière
+        
+        $hue = 120 - ($percentage * 1.2);  
+        $saturation = 100; 
+        $lightness = 50; 
 
         return $this->hslToHex($hue, $saturation, $lightness);
     }
@@ -251,7 +226,7 @@ class PersonalInfoController extends Controller
         $r = $g = $b = 0;
 
         if ($s == 0) {
-            $r = $g = $b = $l; // Gris
+            $r = $g = $b = $l;
         } else {
             $q = $l < 0.5 ? $l * (1 + $s) : $l + $s - $l * $s;
             $p = 2 * $l - $q;
@@ -286,19 +261,17 @@ class PersonalInfoController extends Controller
     $svgBase64 = 'data:image/svg+xml;base64,' . base64_encode($svgContent);
     $fullName = $firstName . ' ' . $lastName;
     $nampdf = $firstName . '_' . $lastName;
-    // $pdf = PDF::loadView('ethniquepdf', compact('svgBase64'));
-    $pdf = PDF::loadView('ethniquepdf', [
+   
+    $pdf = PDF::loadView('ethniquepdfi', [
         'svgBase64' => $svgBase64,
         'name' => $fullName,
     ]);
 
-    // Nom du fichier à sauvegarder
     $fileName = $nampdf . date('Y_m_d_H_i_s') . '.pdf';
 
     // Chemin pour enregistrer dans storage/app/public/pdfs/
     $filePath = storage_path('app/public/pdfs/' . $fileName);
 
-    // Création dossier si n'existe pas
     if (!file_exists(dirname($filePath))) {
         mkdir(dirname($filePath), 0755, true);
     }
