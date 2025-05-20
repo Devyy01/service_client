@@ -19,10 +19,18 @@
 <body>
     <header id="header" class="bg-primary fixed w-full z-20 top-0 start-0">
         <nav class="mx-auto flex max-w-7xl items-center justify-between p-3 lg:py-4 lg:px-8">
-            <div class="flex lg:flex-1">
+            <div class="flex flex-1 justify-between">
                 <a href="https://www.quickdna.com" target="_blank" class="-m-1.5 p-1.5">
                     <img class="w-auto h-20" src="{{ asset('assets/images/QuickDNA_Logo.png') }}" alt="Logo">
                 </a>
+                <form method="POST" action="{{ route('logout') }}" class="flex items-center">
+                    @csrf
+                    <button type="submit"
+                        class="cursor-pointer bg-transparent border-none text-white duration-300 transition-all hover:underline">
+                        <img src="{{ asset('assets/icons/logout.svg') }}" class="w-6 hidden max-sm:flex" alt="Logout">
+                        <span class="max-sm:hidden">Déconnexion</span>
+                    </button>
+                </form>
             </div>
         </nav>
     </header>
@@ -79,12 +87,40 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="sm:col-span-2">
+                    <div>
+                        <label for="skin-color" class="block text-sm sm:text-base text-gray-900">Couleur de peau</label>
+                        <input type="text" name="skin-color" id="skin-color"
+                            placeholder="Entrez votre couleur de peau"
+                            class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary" />
+                    </div>
+                    <div>
+                        <label for="hair-color" class="block text-sm sm:text-base text-gray-900">Couleur de
+                            cheveux</label>
+                        <input type="text" name="hair-color" id="hair-color"
+                            placeholder="Entrez votre couleur de cheveux"
+                            class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary" />
+                    </div>
+                    <div>
+                        <label for="eyes-color" class="block text-sm sm:text-base text-gray-900">Couleur des
+                            yeux</label>
+                        <input type="text" name="eyes-color" id="eyes-color"
+                            placeholder="Entrez votre couleur des yeux"
+                            class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary" />
+                    </div>
+                    <div>
+                        <label for="slanting-eyes" class="block text-sm sm:text-base text-gray-900">Yeux
+                            bridés</label>
+                        <input type="text" name="slanting-eyes" id="slanting-eyes"
+                            placeholder="Décrivez vos yeux bridés"
+                            class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary" />
+                    </div>
+                    {{-- <div class="sm:col-span-2">
                         <label for="characteristic"
                             class="block text-sm sm:text-base text-gray-900">Caractéristique</label>
-                        <textarea name="characteristic" id="characteristic" placeholder="Décrivez vos caractéristiques (ex. : Peau : noire, Yeux : noirs)" rows="4"
+                        <textarea name="characteristic" id="characteristic"
+                            placeholder="Décrivez vos caractéristiques (ex. : Peau : noire, Yeux : noirs)" rows="4"
                             class="block mt-1.5 w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:outline-2 focus:-outline-offset-2 focus:outline-primary"></textarea>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="mt-10">
                     <button type="button" id="generate"
@@ -116,8 +152,11 @@
                 address: null,
                 city: null,
                 postal_code: null,
+                skin_color: null,
+                hair_color: null,
+                eyes_color: null,
+                slanting_eyes: null,
                 country: null,
-                characteristic: null
             };
 
             $('#firstname').on('input', function() {
@@ -140,13 +179,29 @@
                 infos.postal_code = $(this).val();
             });
 
+            $('#skin-color').on('input', function() {
+                infos.skin_color = $(this).val();
+            });
+
+            $('#hair-color').on('input', function() {
+                infos.hair_color = $(this).val();
+            });
+
+            $('#eyes-color').on('input', function() {
+                infos.eyes_color = $(this).val();
+            });
+
+            $('#slanting-eyes').on('input', function() {
+                infos.slanting_eyes = $(this).val();
+            });
+
             $('#country').on('change', function() {
                 infos.country = $(this).val();
             });
 
-            $('#characteristic').on('input', function() {
-                infos.characteristic = $(this).val();
-            });
+            // $('#characteristic').on('input', function() {
+            //     infos.characteristic = $(this).val();
+            // });
 
             $('#generate').on('click', function() {
 
@@ -164,7 +219,6 @@
                     url: '/subscription',
                     method: 'POST',
                     data: infos,
-                    
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
@@ -182,7 +236,6 @@
                         $('#firstname, #lastname, #address, #city, #postal_code, #country, #characteristic')
                             .val('');
                         Object.keys(infos).forEach(key => infos[key] = null);
-                        
                         window.location.href = '/generatePdf'
                     },
                     error: function() {
