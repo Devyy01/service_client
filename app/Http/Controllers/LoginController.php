@@ -6,25 +6,34 @@ use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
-    public function showlogin()
+    public function showLogin(Request $request)
     {
-        return view('login'); // Charger la vue contenant ton formulaire
+        // Si déjà authentifié, redirige directement
+        if ($request->session()->get('authenticated')) {
+            return redirect()->intended('/');
+        }
+
+        // Si formulaire POST
+        if ($request->isMethod('post')) {
+            $password = $request->input('password');
+            if (password_verify($password, env('SECURE_PASSWORD'))) {
+                $request->session()->put('authenticated', true);
+                return redirect()->intended('/'); 
+            } else {
+                return back()->with('error', 'Mot de passe incorrect');
+            }
+        }
+
+        // Affiche la vue login
+        return view('login');
     }
-    public function LoginForm(Request $request)
+
+    public function logout(Request $request)
     {
-        // Valider les données
-        $validated = $request->validate([
-            'nom' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'yeux' => 'required|string|max:255',
-            'peau' => 'required|string|max:255',
-            'ville' => 'required|string|max:255',
-        ]);
+        $request->session()->forget('authenticated'); // Supprime la session
+        $request->session()->invalidate();            // Invalide la session
+        $request->session()->regenerateToken();       // Regénère le token CSRF
 
-        // Traiter les données ici (ex: les enregistrer dans une base de données)
-        // Pour cet exemple, on va juste les afficher
-        dd($validated); // Affiche les données validées
-
-        return redirect()->back()->with('success', 'Données envoyées avec succès!');
+        return redirect('/login')->with('message', 'Déconnexion réussie');
     }
 }

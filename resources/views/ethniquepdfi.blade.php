@@ -33,7 +33,7 @@
     h2 {
       font-size: 30pt;
       color: #1caa93;
-      margin-top: 10px;
+      margin-top: 5px;
       margin-left: 40px;
       position: absolute;
       top: 2px; 
@@ -42,14 +42,14 @@
     h3 {
       font-size: 25pt;
       color: #1caa93;
-      margin-top: 20px;
+      margin-top: 10px;
       margin-left: 40px;
     }
 
     p {
-      font-size: 14pt;
+      font-size: 16pt;
       color: #1caa93;
-      line-height: 1.6;
+      line-height: 1.3;
       margin-left: 40px;
     }
 
@@ -85,8 +85,8 @@
 
     .footer {
       text-align: right;
-      font-size: 14pt;
-      margin-top: 50px;
+      font-size: 16pt;
+      margin-top: 10px;
     }
 
     .footer.absolute {
@@ -105,17 +105,17 @@
     }
     ul {
       list-style: none;
-      padding-bottom: 20px;
+      padding-bottom: 15px;
     }
     li {
       display: flex;
+      line-height: 1cm;
       position: relative;
       align-items: center;
-      margin-bottom: 6px;
     }
     li p {
       padding-left: 16px;
-      font-size: 14pt;
+      font-size: 16pt;
       color: #1caa93;
       display: inline;
       font-weight: bold;
@@ -123,10 +123,10 @@
     li img {
       position: absolute;
       left :0;
-      top: 13px;
+      top: 19px;
     }
     .nobold {
-      font-size: 14pt;
+      font-size: 16pt;
       color: #1caa93;
       font-weight: normal;
     }
@@ -140,7 +140,7 @@
       <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 210px; height: auto;">
     </div>
     <h1>ANCESTRY TEST RESULTS</h1>
-    <p style="font-size: 20pt; text-decoration: underline;">Placer le nom ici</p>
+    <p style="font-size: 20pt; text-decoration: underline;">{{$name}}</p>
     <div class="footer absolute">
       <p>&copy; {{ date('Y') }} DNA Result.</p>
     </div>
@@ -160,7 +160,7 @@
       <!-- PAGE 3 -->
     <div class="section content">
       <div class="litlelogo">
-        <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 120px; height: auto;">
+        <img src="{{ public_path('logo.svg') }}" alt="Logo" style="width: 120px; height: auto;">
       </div>
       <h3>GENETIC DISEASE SCREENING</h3>
       <div>
@@ -216,7 +216,7 @@
         <!-- PAGE 5 -->
     <div class="section content">
       <div class="litlelogo">
-        <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 120px; height: auto;">
+        <img src="{{ public_path('logo.svg') }}" alt="Logo" style="width: 120px; height: auto;">
       </div>
       <h3>DRUG TOLERANCE TEST</h3>
           <div>

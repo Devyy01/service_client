@@ -1,11 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Response;
+use App\Http\Controllers\LoginController;
+use App\Http\Middleware\PasswordProtected;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\PersonalInfoController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Response;
-
 
 Route::get('/countries', function () {
     $path = resource_path('files/countries.json');
@@ -13,6 +14,13 @@ Route::get('/countries', function () {
     return Response::make($countries, 200, ['Content-Type' => 'application/json']);
 });
 
-Route::get('/', [CountryController::class, 'showCountryForm'])->name('countries');
-Route::get('/generatePdf', [PersonalInfoController::class, 'generatePdf']);
-Route::post('/subscription', [PersonalInfoController::class, 'submitForm']);
+Route::match(['get', 'post'], '/login', [LoginController::class, 'showLogin'])->name('login');
+
+Route::middleware(['password.protected'])->group(function () {
+    
+    Route::get('/', [CountryController::class, 'showCountryForm'])->name('countries');
+    Route::get('/generatePdf', [PersonalInfoController::class, 'generatePdf']);
+    Route::post('/subscription', [PersonalInfoController::class, 'submitForm']);
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+   
+});
