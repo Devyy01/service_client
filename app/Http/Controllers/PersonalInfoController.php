@@ -32,31 +32,36 @@ class PersonalInfoController extends Controller
             'city' => 'required|string|max:255',
             'postal_code' => 'required|string|max:255',
             'country' => 'required|string|max:255',
-            'characteristic' => 'required|string|max:255',
+            'skin_color' => 'required|string|max:255',
+            'hair_color' => 'required|string|max:255',
+            'eyes_color' => 'required|string|max:255',
+            'slanting_eyes' => 'required|string|max:255',
         ]);
-
-        $prompt = $this->generatePrompt($validated['firstName'], $validated['lastName'], $validated['address'], $validated['city'], $validated['postal_code'], $validated['country'], $validated['characteristic']);
+ 
+        $prompt = $this->generatePrompt($validated['firstName'], $validated['lastName'], $validated['address'], $validated['city'], $validated['postal_code'], $validated['country'], $validated['skin_color'],$validated['hair_color'],$validated['eyes_color'],$validated['slanting_eyes']);
         $valer = $this->serviceOpenAI->generateCanva($prompt);
-        preg_match_all('/([A-Za-zéèàùçêîôâëïü -]+)\s*:\s*(\d+(?:[.,]\d+)?)\s*%/', $valer, $matches, PREG_SET_ORDER);
+        // dd($valer);
+        // preg_match_all('/([A-Za-zéèàùçêîôâëïü -]+)\s*:\s*(\d+(?:[.,]\d+)?)\s*%/', $valer, $matches, PREG_SET_ORDER);
+        preg_match_all('/([A-Z]{2})\s+(\d+(?:\.\d+)?)/', $valer, $matches, PREG_SET_ORDER);
 
         $countries = json_decode(file_get_contents(resource_path('json/countries.json')), true);
-
+        // dd($matches,$valer);
         $result = [];
-        $countrise_code = [];
+        // $countrise = [];
 
         foreach ($matches as $match) {
             
-            $country = trim($match[1]);
+            $code = trim($match[1]);
             $percent = $match[2];
-            $country_code=$this->getCountryCode($country);
-            if ($country_code) {
-                $result[$country_code] =  $percent;
-                $countrise_code[$country_code] = $country;
-            }
+            $result[$code] =  $percent;
+            // $country = $this->getCountryName($code);
+            // if ($country) {
+            //     $countrise[$code] = $country;
+            // }
         }
         
-        if ($result && $countrise_code) {
-            $this->generateMap($result, $countrise_code);
+        if ($result) {
+            $this->generateMap($result);
         }
         
         // $this->generatePdf($validated['firstName'], $validated['lastName']);
@@ -66,24 +71,25 @@ class PersonalInfoController extends Controller
         ]);
     }
 
-    private function generatePrompt($firstName, $lastName, $address, $city, $postal_code, $country, $characteristic)
+    private function generatePrompt($firstName, $lastName, $address, $city, $postal_code, $country, $skin_color, $hair_color, $eyes_color, $slanting_eyes)
     {
-        $prompt = "You are an expert in demographic and onomastic analysis. Here are the instructions:\n\n";
-        $prompt .= "You must estimate the most likely geographical origin of a person based on their first name, last name, address, and physical description.\n\n";
-        $prompt .= "You must follow these rules:\n";
-        $prompt .= "1. You must assign **percentages by country only**, no continents.\n";
-        $prompt .= "2. Each percentage must be a precise number, not rounded (example: 55.2%, 10.7%, not 50% or 10%).\n";
-        $prompt .= "3. The total percentage must add up to exactly 100%.\n";
-        $prompt .= "4. The response must be in this format:\nFrance: xx.x%\nMorocco: xx.x%\n...\n\n";
-        $prompt .= "Here is the information to analyze:\n\n";
-        $prompt .= "First name: $firstName\nLast name: $lastName\nAddress: $address, $city $postal_code, $country\nPhysical description: $characteristic\n\n";
-        $prompt .= "Please assign percentages by country and follow all the rules stated above.";
-
+        
+        $prompt = "";
+        $prompt .= "In your opinion, what is the geographical origin of a person named \"$firstName $lastName\" ";
+        $prompt .= "living at $address, $city ($postal_code), $country, with the following features: ";
+        $prompt .= "skin-color: $skin_color, hair-color: $hair_color, eyes-color: $eyes_color, slanting_eyes: $slanting_eyes.\n\n";
+        $prompt .= "Assign a percentage for each country using the ISO country code. ";
+        $prompt .= "You must never mention continents, only countries with their ISO codes. ";
+        $prompt .= "Each percentage must have exactly two decimal places and must not be rounded, must not be a whole number, and must never end in .00. ";
+        $prompt .= "For example: 82.64 is correct, but 82.00 or 83.00 are not. The total must equal 100%. ";
+        $prompt .= "The result you provide must be exactly 3 to 6 lines. ";
+        $prompt .= "Each line must be formatted like this: FR 82.64 — that is, ISO code followed by the percentage. ";
+        $prompt .= "Do not add any explanation, just list the countries and their percentages.";
 
         return $prompt;
     }
 
-    public function generateMap($data, $data_code)
+    public function generateMap($data)
     {
 
         $defaultColor = '#1CAB94';
@@ -161,26 +167,28 @@ class PersonalInfoController extends Controller
 
         foreach ($data as $countryCode => $percentage) {
             $color = $this->getColorFromPercentage($percentage);
-            $countryName = $data_code[$countryCode];
+            $countryName = $this->getCountryName($countryCode);
 
-            $legendElements .= sprintf(
-                '<rect x="%d" y="%d" width="%d" height="%d" style="fill:%s;stroke:black;stroke-width:1" />',
-                $legendX,
-                $legendY,
-                $rectSize,
-                $rectSize,
-                $color
-            );
+           if ($countryName) {
+                $legendElements .= sprintf(
+                    '<rect x="%d" y="%d" width="%d" height="%d" style="fill:%s;stroke:black;stroke-width:1" />',
+                    $legendX,
+                    $legendY,
+                    $rectSize,
+                    $rectSize,
+                    $color
+                );
 
-            $legendElements .= sprintf(
-                '<text x="%d" y="%d" font-size="12" fill="#000">%s (%s%%)</text>',
-                $legendX + $rectSize + 10,
-                $legendY + $rectSize - 2,
-                htmlspecialchars($countryName),
-                $percentage
-            );
+                $legendElements .= sprintf(
+                    '<text x="%d" y="%d" font-size="12" fill="#000">%s (%s%%)</text>',
+                    $legendX + $rectSize + 10,
+                    $legendY + $rectSize - 2,
+                    htmlspecialchars($countryName),
+                    str_replace('.', ',', $percentage)
+                );
 
-            $legendY += $legendSpacing;
+                $legendY += $legendSpacing;
+           }
         }
 
         $legendElements .= '</g>';
@@ -196,17 +204,17 @@ class PersonalInfoController extends Controller
     }
 
 
-    private function getCountryName($countryCode)
-    {
-        $countries = [
-            'FR' => 'France',
-            'DZ' => 'Algérie',
-            'IT' => 'Italie',
-            'CA' => 'Canada',
-        ];
+    // private function getCountryName($countryCode)
+    // {
+    //     $countries = [
+    //         'FR' => 'France',
+    //         'DZ' => 'Algérie',
+    //         'IT' => 'Italie',
+    //         'CA' => 'Canada',
+    //     ];
 
-        return $countries[$countryCode] ?? $countryCode;
-    }
+    //     return $countries[$countryCode] ?? $countryCode;
+    // }
     private function getColorFromPercentage($percentage)
     {
         
@@ -282,205 +290,208 @@ class PersonalInfoController extends Controller
     return response()->download($filePath);
     }
 
-    public function getCountryCode($country)
+    public function getCountryName($code) 
     {
-        switch ($country) {
-            case 'Afghanistan': return 'AF';
-            case 'Albania': return 'AL';
-            case 'Algeria': return 'DZ';
-            case 'Andorra': return 'AD';
-            case 'Angola': return 'AO';
-            case 'Antigua and Barbuda': return 'AG';
-            case 'Argentina': return 'AR';
-            case 'Armenia': return 'AM';
-            case 'Australia': return 'AU';
-            case 'Austria': return 'AT';
-            case 'Azerbaijan': return 'AZ';
-            case 'Bahamas': return 'BS';
-            case 'Bahrain': return 'BH';
-            case 'Bangladesh': return 'BD';
-            case 'Barbados': return 'BB';
-            case 'Belarus': return 'BY';
-            case 'Belgium': return 'BE';
-            case 'Belize': return 'BZ';
-            case 'Benin': return 'BJ';
-            case 'Bhutan': return 'BT';
-            case 'Bolivia': return 'BO';
-            case 'Bosnia and Herzegovina': return 'BA';
-            case 'Botswana': return 'BW';
-            case 'Brazil': return 'BR';
-            case 'Brunei': return 'BN';
-            case 'Bulgaria': return 'BG';
-            case 'Burkina Faso': return 'BF';
-            case 'Burundi': return 'BI';
-            case 'Cabo Verde': return 'CV';
-            case 'Cambodia': return 'KH';
-            case 'Cameroon': return 'CM';
-            case 'Canada': return 'CA';
-            case 'Central African Republic': return 'CF';
-            case 'Chad': return 'TD';
-            case 'Chile': return 'CL';
-            case 'China': return 'CN';
-            case 'Colombia': return 'CO';
-            case 'Comoros': return 'KM';
-            case 'Congo': return 'CG';
-            case 'Congo (Democratic Republic)': return 'CD';
-            case 'Costa Rica': return 'CR';
-            case 'Croatia': return 'HR';
-            case 'Cuba': return 'CU';
-            case 'Cyprus': return 'CY';
-            case 'Czechia': return 'CZ';
-            case 'Denmark': return 'DK';
-            case 'Djibouti': return 'DJ';
-            case 'Dominica': return 'DM';
-            case 'Dominican Republic': return 'DO';
-            case 'Ecuador': return 'EC';
-            case 'Egypt': return 'EG';
-            case 'El Salvador': return 'SV';
-            case 'Equatorial Guinea': return 'GQ';
-            case 'Eritrea': return 'ER';
-            case 'Estonia': return 'EE';
-            case 'Eswatini': return 'SZ';
-            case 'Ethiopia': return 'ET';
-            case 'Fiji': return 'FJ';
-            case 'Finland': return 'FI';
-            case 'France': return 'FR';
-            case 'Gabon': return 'GA';
-            case 'Gambia': return 'GM';
-            case 'Georgia': return 'GE';
-            case 'Germany': return 'DE';
-            case 'Ghana': return 'GH';
-            case 'Greece': return 'GR';
-            case 'Grenada': return 'GD';
-            case 'Guatemala': return 'GT';
-            case 'Guinea': return 'GN';
-            case 'Guinea-Bissau': return 'GW';
-            case 'Guyana': return 'GY';
-            case 'Haiti': return 'HT';
-            case 'Honduras': return 'HN';
-            case 'Hungary': return 'HU';
-            case 'Iceland': return 'IS';
-            case 'India': return 'IN';
-            case 'Indonesia': return 'ID';
-            case 'Iran': return 'IR';
-            case 'Iraq': return 'IQ';
-            case 'Ireland': return 'IE';
-            case 'Israel': return 'IL';
-            case 'Italy': return 'IT';
-            case 'Jamaica': return 'JM';
-            case 'Japan': return 'JP';
-            case 'Jordan': return 'JO';
-            case 'Kazakhstan': return 'KZ';
-            case 'Kenya': return 'KE';
-            case 'Kiribati': return 'KI';
-            case 'Korea, North': return 'KP';
-            case 'Korea, South': return 'KR';
-            case 'Kuwait': return 'KW';
-            case 'Kyrgyzstan': return 'KG';
-            case 'Laos': return 'LA';
-            case 'Latvia': return 'LV';
-            case 'Lebanon': return 'LB';
-            case 'Lesotho': return 'LS';
-            case 'Liberia': return 'LR';
-            case 'Libya': return 'LY';
-            case 'Liechtenstein': return 'LI';
-            case 'Lithuania': return 'LT';
-            case 'Luxembourg': return 'LU';
-            case 'Madagascar': return 'MG';
-            case 'Malawi': return 'MW';
-            case 'Malaysia': return 'MY';
-            case 'Maldives': return 'MV';
-            case 'Mali': return 'ML';
-            case 'Malta': return 'MT';
-            case 'Marshall Islands': return 'MH';
-            case 'Mauritania': return 'MR';
-            case 'Mauritius': return 'MU';
-            case 'Mexico': return 'MX';
-            case 'Micronesia': return 'FM';
-            case 'Moldova': return 'MD';
-            case 'Monaco': return 'MC';
-            case 'Mongolia': return 'MN';
-            case 'Montenegro': return 'ME';
-            case 'Morocco': return 'MA';
-            case 'Mozambique': return 'MZ';
-            case 'Myanmar': return 'MM';
-            case 'Namibia': return 'NA';
-            case 'Nauru': return 'NR';
-            case 'Nepal': return 'NP';
-            case 'Netherlands': return 'NL';
-            case 'New Zealand': return 'NZ';
-            case 'Nicaragua': return 'NI';
-            case 'Niger': return 'NE';
-            case 'Nigeria': return 'NG';
-            case 'North Macedonia': return 'MK';
-            case 'Norway': return 'NO';
-            case 'Oman': return 'OM';
-            case 'Pakistan': return 'PK';
-            case 'Palau': return 'PW';
-            case 'Panama': return 'PA';
-            case 'Papua New Guinea': return 'PG';
-            case 'Paraguay': return 'PY';
-            case 'Peru': return 'PE';
-            case 'Philippines': return 'PH';
-            case 'Poland': return 'PL';
-            case 'Portugal': return 'PT';
-            case 'Qatar': return 'QA';
-            case 'Romania': return 'RO';
-            case 'Russia': return 'RU';
-            case 'Rwanda': return 'RW';
-            case 'Saint Kitts and Nevis': return 'KN';
-            case 'Saint Lucia': return 'LC';
-            case 'Saint Vincent and the Grenadines': return 'VC';
-            case 'Samoa': return 'WS';
-            case 'San Marino': return 'SM';
-            case 'Sao Tome and Principe': return 'ST';
-            case 'Saudi Arabia': return 'SA';
-            case 'Senegal': return 'SN';
-            case 'Serbia': return 'RS';
-            case 'Seychelles': return 'SC';
-            case 'Sierra Leone': return 'SL';
-            case 'Singapore': return 'SG';
-            case 'Slovakia': return 'SK';
-            case 'Slovenia': return 'SI';
-            case 'Solomon Islands': return 'SB';
-            case 'Somalia': return 'SO';
-            case 'South Africa': return 'ZA';
-            case 'South Sudan': return 'SS';
-            case 'Spain': return 'ES';
-            case 'Sri Lanka': return 'LK';
-            case 'Sudan': return 'SD';
-            case 'Suriname': return 'SR';
-            case 'Sweden': return 'SE';
-            case 'Switzerland': return 'CH';
-            case 'Syria': return 'SY';
-            case 'Taiwan': return 'TW';
-            case 'Tajikistan': return 'TJ';
-            case 'Tanzania': return 'TZ';
-            case 'Thailand': return 'TH';
-            case 'Timor-Leste': return 'TL';
-            case 'Togo': return 'TG';
-            case 'Tonga': return 'TO';
-            case 'Trinidad and Tobago': return 'TT';
-            case 'Tunisia': return 'TN';
-            case 'Turkey': return 'TR';
-            case 'Turkmenistan': return 'TM';
-            case 'Tuvalu': return 'TV';
-            case 'Uganda': return 'UG';
-            case 'Ukraine': return 'UA';
-            case 'United Arab Emirates': return 'AE';
-            case 'United Kingdom': return 'GB';
-            case 'United States': return 'US';
-            case 'Uruguay': return 'UY';
-            case 'Uzbekistan': return 'UZ';
-            case 'Vanuatu': return 'VU';
-            case 'Vatican City': return 'VA';
-            case 'Venezuela': return 'VE';
-            case 'Vietnam': return 'VN';
-            case 'Yemen': return 'YE';
-            case 'Zambia': return 'ZM';
-            case 'Zimbabwe': return 'ZW';
-            case 'Kosovo': return 'XK';
+        $code = strtoupper($code);
+
+        switch (strtoupper($code)) {
+            case 'AF': return 'Afghanistan';
+            case 'AL': return 'Albania';
+            case 'DZ': return 'Algeria';
+            case 'AD': return 'Andorra';
+            case 'AO': return 'Angola';
+            case 'AG': return 'Antigua and Barbuda';
+            case 'AR': return 'Argentina';
+            case 'AM': return 'Armenia';
+            case 'AU': return 'Australia';
+            case 'AT': return 'Austria';
+            case 'AZ': return 'Azerbaijan';
+            case 'BS': return 'Bahamas';
+            case 'BH': return 'Bahrain';
+            case 'BD': return 'Bangladesh';
+            case 'BB': return 'Barbados';
+            case 'BY': return 'Belarus';
+            case 'BE': return 'Belgium';
+            case 'BZ': return 'Belize';
+            case 'BJ': return 'Benin';
+            case 'BT': return 'Bhutan';
+            case 'BO': return 'Bolivia';
+            case 'BA': return 'Bosnia and Herzegovina';
+            case 'BW': return 'Botswana';
+            case 'BR': return 'Brazil';
+            case 'BN': return 'Brunei';
+            case 'BG': return 'Bulgaria';
+            case 'BF': return 'Burkina Faso';
+            case 'BI': return 'Burundi';
+            case 'CV': return 'Cabo Verde';
+            case 'KH': return 'Cambodia';
+            case 'CM': return 'Cameroon';
+            case 'CA': return 'Canada';
+            case 'CF': return 'Central African Republic';
+            case 'TD': return 'Chad';
+            case 'CL': return 'Chile';
+            case 'CN': return 'China';
+            case 'CO': return 'Colombia';
+            case 'KM': return 'Comoros';
+            case 'CG': return 'Congo';
+            case 'CD': return 'Congo (Democratic Republic)';
+            case 'CR': return 'Costa Rica';
+            case 'HR': return 'Croatia';
+            case 'CU': return 'Cuba';
+            case 'CY': return 'Cyprus';
+            case 'CZ': return 'Czechia';
+            case 'DK': return 'Denmark';
+            case 'DJ': return 'Djibouti';
+            case 'DM': return 'Dominica';
+            case 'DO': return 'Dominican Republic';
+            case 'EC': return 'Ecuador';
+            case 'EG': return 'Egypt';
+            case 'SV': return 'El Salvador';
+            case 'GQ': return 'Equatorial Guinea';
+            case 'ER': return 'Eritrea';
+            case 'EE': return 'Estonia';
+            case 'SZ': return 'Eswatini';
+            case 'ET': return 'Ethiopia';
+            case 'FJ': return 'Fiji';
+            case 'FI': return 'Finland';
+            case 'FR': return 'France';
+            case 'GA': return 'Gabon';
+            case 'GM': return 'Gambia';
+            case 'GE': return 'Georgia';
+            case 'DE': return 'Germany';
+            case 'GH': return 'Ghana';
+            case 'GR': return 'Greece';
+            case 'GD': return 'Grenada';
+            case 'GT': return 'Guatemala';
+            case 'GN': return 'Guinea';
+            case 'GW': return 'Guinea-Bissau';
+            case 'GY': return 'Guyana';
+            case 'HT': return 'Haiti';
+            case 'HN': return 'Honduras';
+            case 'HU': return 'Hungary';
+            case 'IS': return 'Iceland';
+            case 'IN': return 'India';
+            case 'ID': return 'Indonesia';
+            case 'IR': return 'Iran';
+            case 'IQ': return 'Iraq';
+            case 'IE': return 'Ireland';
+            case 'IL': return 'Israel';
+            case 'IT': return 'Italy';
+            case 'JM': return 'Jamaica';
+            case 'JP': return 'Japan';
+            case 'JO': return 'Jordan';
+            case 'KZ': return 'Kazakhstan';
+            case 'KE': return 'Kenya';
+            case 'KI': return 'Kiribati';
+            case 'KP': return 'Korea, North';
+            case 'KR': return 'Korea, South';
+            case 'KW': return 'Kuwait';
+            case 'KG': return 'Kyrgyzstan';
+            case 'LA': return 'Laos';
+            case 'LV': return 'Latvia';
+            case 'LB': return 'Lebanon';
+            case 'LS': return 'Lesotho';
+            case 'LR': return 'Liberia';
+            case 'LY': return 'Libya';
+            case 'LI': return 'Liechtenstein';
+            case 'LT': return 'Lithuania';
+            case 'LU': return 'Luxembourg';
+            case 'MG': return 'Madagascar';
+            case 'MW': return 'Malawi';
+            case 'MY': return 'Malaysia';
+            case 'MV': return 'Maldives';
+            case 'ML': return 'Mali';
+            case 'MT': return 'Malta';
+            case 'MH': return 'Marshall Islands';
+            case 'MR': return 'Mauritania';
+            case 'MU': return 'Mauritius';
+            case 'MX': return 'Mexico';
+            case 'FM': return 'Micronesia';
+            case 'MD': return 'Moldova';
+            case 'MC': return 'Monaco';
+            case 'MN': return 'Mongolia';
+            case 'ME': return 'Montenegro';
+            case 'MA': return 'Morocco';
+            case 'MZ': return 'Mozambique';
+            case 'MM': return 'Myanmar';
+            case 'NA': return 'Namibia';
+            case 'NR': return 'Nauru';
+            case 'NP': return 'Nepal';
+            case 'NL': return 'Netherlands';
+            case 'NZ': return 'New Zealand';
+            case 'NI': return 'Nicaragua';
+            case 'NE': return 'Niger';
+            case 'NG': return 'Nigeria';
+            case 'MK': return 'North Macedonia';
+            case 'NO': return 'Norway';
+            case 'OM': return 'Oman';
+            case 'PK': return 'Pakistan';
+            case 'PW': return 'Palau';
+            case 'PA': return 'Panama';
+            case 'PG': return 'Papua New Guinea';
+            case 'PY': return 'Paraguay';
+            case 'PE': return 'Peru';
+            case 'PH': return 'Philippines';
+            case 'PL': return 'Poland';
+            case 'PT': return 'Portugal';
+            case 'QA': return 'Qatar';
+            case 'RO': return 'Romania';
+            case 'RU': return 'Russia';
+            case 'RW': return 'Rwanda';
+            case 'KN': return 'Saint Kitts and Nevis';
+            case 'LC': return 'Saint Lucia';
+            case 'VC': return 'Saint Vincent and the Grenadines';
+            case 'WS': return 'Samoa';
+            case 'SM': return 'San Marino';
+            case 'ST': return 'Sao Tome and Principe';
+            case 'SA': return 'Saudi Arabia';
+            case 'SN': return 'Senegal';
+            case 'RS': return 'Serbia';
+            case 'SC': return 'Seychelles';
+            case 'SL': return 'Sierra Leone';
+            case 'SG': return 'Singapore';
+            case 'SK': return 'Slovakia';
+            case 'SI': return 'Slovenia';
+            case 'SB': return 'Solomon Islands';
+            case 'SO': return 'Somalia';
+            case 'ZA': return 'South Africa';
+            case 'SS': return 'South Sudan';
+            case 'ES': return 'Spain';
+            case 'LK': return 'Sri Lanka';
+            case 'SD': return 'Sudan';
+            case 'SR': return 'Suriname';
+            case 'SE': return 'Sweden';
+            case 'CH': return 'Switzerland';
+            case 'SY': return 'Syria';
+            case 'TW': return 'Taiwan';
+            case 'TJ': return 'Tajikistan';
+            case 'TZ': return 'Tanzania';
+            case 'TH': return 'Thailand';
+            case 'TL': return 'Timor-Leste';
+            case 'TG': return 'Togo';
+            case 'TO': return 'Tonga';
+            case 'TT': return 'Trinidad and Tobago';
+            case 'TN': return 'Tunisia';
+            case 'TR': return 'Turkey';
+            case 'TM': return 'Turkmenistan';
+            case 'TV': return 'Tuvalu';
+            case 'UG': return 'Uganda';
+            case 'UA': return 'Ukraine';
+            case 'AE': return 'United Arab Emirates';
+            case 'GB': return 'United Kingdom';
+            case 'US': return 'United States';
+            case 'UY': return 'Uruguay';
+            case 'UZ': return 'Uzbekistan';
+            case 'VU': return 'Vanuatu';
+            case 'VA': return 'Vatican City';
+            case 'VE': return 'Venezuela';
+            case 'VN': return 'Vietnam';
+            case 'YE': return 'Yemen';
+            case 'ZM': return 'Zambia';
+            case 'ZW': return 'Zimbabwe';
+            case 'XK': return 'Kosovo';
             default: return null;
         }
     }
+
 }
